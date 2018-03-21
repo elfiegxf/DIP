@@ -1,0 +1,300 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>synthesis</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-28"><meta name="DC.source" content="synthesis.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [F] = synthesis(f1,f2,f3,f4,g0,g1)
+<span class="comment">%THIS FUNCTION BUILDS CODE FOR A 2D  INVERSE WAVELET TRANSFORM.</span>
+<span class="comment">%CREATED BY XIAOFEI GUO</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%INPUT: f1: N COARSE SCALE APPROXIMATION OF THE ORIGINAL IMAGE.</span>
+<span class="comment">%       f2: N VERTICAL</span>
+<span class="comment">%       f3: N HORIZONTAL</span>
+<span class="comment">%       f4: N DETAILED IMAGES,.</span>
+<span class="comment">%       g0 IS A LOW PASS SYNTHESIS FILTER, g1 IS A HIGH PASS SYNTHESIS</span>
+<span class="comment">%       FILTER.</span>
+<span class="comment">%NOTE THAT g0 AND g1 BOTH ARE VECTORS.f1~f4 ARE CELL ARRAY WITH FIRST</span>
+<span class="comment">%     DIMENSION 1.</span>
+<span class="comment">%OUTPUT: RECONSTRUCTED FINE SCALE IMAGE</span>
+
+<span class="comment">% whether inputs are cells</span>
+<span class="keyword">if</span> (~iscell(f1))
+    fc1 = cell(1,1);
+    fc1{1,1} = f1;
+    f1 = fc1;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> (~iscell(f2))
+    fc2 = cell(1,1);
+    fc2{1,1} = f2;
+    f2 = fc2;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> (~iscell(f3))
+    fc3 = cell(1,1);
+    fc3{1,1} = f3;
+    f3 = fc3;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> (~iscell(f4))
+    fc4 = cell(1,1);
+    fc4{1,1} = f4;
+    f4 = fc4;
+<span class="keyword">end</span>
+
+<span class="comment">% Initialization.</span>
+[Nx,Ny] = size(f1);
+N = max(Nx,Ny);
+
+<span class="comment">% store the sizes of each layer</span>
+sx = zeros(N+1,2);
+    <span class="keyword">for</span> k = 1:N
+     sx(k+1,:) = size(f1{1,k});
+    <span class="keyword">end</span>
+
+sx(1,:) = sx(2,:)*2;
+
+<span class="comment">%ensure the filter format</span>
+[x,y] = size(g0);
+[x1,y1] = size(g1);
+L = max(x,y);
+
+<span class="keyword">if</span>(x == 1)
+    g0 = g0';
+<span class="keyword">end</span>
+
+<span class="keyword">if</span>(x1 == 1)
+    g1 = g1';
+<span class="keyword">end</span>
+
+<span class="comment">% create a cell array to store result.</span>
+F = cell(1,N+1);
+F{1,N+1} = f1{1,N};
+
+<span class="comment">% create loop to synthesis pics</span>
+<span class="keyword">for</span> i = N:-1:1
+
+    <span class="comment">% input is F{1,i+1} and the result will go to F{1,i}</span>
+    <span class="comment">% creates cell arrays where the elements are the cols of pics</span>
+    F{1,i+1} = num2cell(F{1,i+1},1);
+    f2{1,i} = num2cell(f2{1,i},1);
+    f3{1,i} = num2cell(f3{1,i},1);
+    f4{1,i} = num2cell(f4{1,i},1);
+
+    <span class="comment">% upsample</span>
+    F{1,i+1} = cellfun(@(x) upsample(x,2), F{1,i+1},<span class="string">'UniformOutput'</span>, false);
+    f2{1,i} = cellfun(@(x) upsample(x,2), f2{1,i},<span class="string">'UniformOutput'</span>, false);
+    f3{1,i} = cellfun(@(x) upsample(x,2), f3{1,i},<span class="string">'UniformOutput'</span>, false);
+    f4{1,i} = cellfun(@(x) upsample(x,2), f4{1,i},<span class="string">'UniformOutput'</span>, false);
+
+    <span class="comment">% filter them</span>
+    F{1,i+1} = cellfun(@(x) real(ifft(fft(x).*fft(g0,sx(i,1)))),F{1,i+1}, <span class="string">'UniformOutput'</span>, false);
+    f2{1,i} = cellfun(@(x) real(ifft(fft(x).*fft(g1,sx(i,1)))),f2{1,i}, <span class="string">'UniformOutput'</span>, false);
+    f3{1,i} = cellfun(@(x) real(ifft(fft(x).*fft(g0,sx(i,1)))),f3{1,i}, <span class="string">'UniformOutput'</span>, false);
+    f4{1,i} = cellfun(@(x) real(ifft(fft(x).*fft(g1,sx(i,1)))),f4{1,i}, <span class="string">'UniformOutput'</span>, false);
+
+    <span class="comment">%add two</span>
+    temph01 =cell2mat(F{1,i+1}) + cell2mat(f2{1,i});
+    temph02 = cell2mat(f3{1,i}) + cell2mat(f4{1,i});
+
+    <span class="comment">%transeform col cells into row cells</span>
+    temph01 = num2cell(temph01,2);
+    temph02 = num2cell(temph02,2);
+
+    <span class="comment">%upsample</span>
+    temph01 = cellfun(@(x) upsample(x,2), temph01,<span class="string">'UniformOutput'</span>, false);
+    temph02 = cellfun(@(x) upsample(x,2), temph02,<span class="string">'UniformOutput'</span>, false);
+     <span class="comment">%again process rows.</span>
+    temph01 = cellfun(@(x) real(ifft(fft(x).*fft(g0',sx(i,2)))),temph01, <span class="string">'UniformOutput'</span>, false);
+    temph02 = cellfun(@(x) real(ifft(fft(x).*fft(g1',sx(i,2)))),temph02, <span class="string">'UniformOutput'</span>, false);
+    F{1,i} = cell2mat(temph01) + cell2mat(temph02);
+    <span class="comment">%shift</span>
+    F{1,i} = circshift(F{1,i},[-L+1,-L+1]);
+<span class="keyword">end</span>
+F = F{1,1};
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in synthesis (line 16)
+if (~iscell(f1))
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [F] = synthesis(f1,f2,f3,f4,g0,g1)
+%THIS FUNCTION BUILDS CODE FOR A 2D  INVERSE WAVELET TRANSFORM. 
+%CREATED BY XIAOFEI GUO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%INPUT: f1: N COARSE SCALE APPROXIMATION OF THE ORIGINAL IMAGE.
+%       f2: N VERTICAL
+%       f3: N HORIZONTAL 
+%       f4: N DETAILED IMAGES,. 
+%       g0 IS A LOW PASS SYNTHESIS FILTER, g1 IS A HIGH PASS SYNTHESIS
+%       FILTER.
+%NOTE THAT g0 AND g1 BOTH ARE VECTORS.f1~f4 ARE CELL ARRAY WITH FIRST 
+%     DIMENSION 1.
+%OUTPUT: RECONSTRUCTED FINE SCALE IMAGE
+
+% whether inputs are cells
+if (~iscell(f1))
+    fc1 = cell(1,1);
+    fc1{1,1} = f1;
+    f1 = fc1;
+end
+
+if (~iscell(f2))
+    fc2 = cell(1,1);
+    fc2{1,1} = f2;
+    f2 = fc2;
+end
+
+if (~iscell(f3))
+    fc3 = cell(1,1);
+    fc3{1,1} = f3;
+    f3 = fc3;
+end
+
+if (~iscell(f4))
+    fc4 = cell(1,1);
+    fc4{1,1} = f4;
+    f4 = fc4;
+end
+
+% Initialization.
+[Nx,Ny] = size(f1);
+N = max(Nx,Ny);
+
+% store the sizes of each layer 
+sx = zeros(N+1,2);
+    for k = 1:N
+     sx(k+1,:) = size(f1{1,k});
+    end
+    
+sx(1,:) = sx(2,:)*2;
+
+%ensure the filter format
+[x,y] = size(g0);
+[x1,y1] = size(g1);
+L = max(x,y);
+
+if(x == 1)
+    g0 = g0';
+end
+
+if(x1 == 1)
+    g1 = g1';
+end
+
+% create a cell array to store result.
+F = cell(1,N+1);
+F{1,N+1} = f1{1,N};
+
+% create loop to synthesis pics
+for i = N:-1:1
+
+    % input is F{1,i+1} and the result will go to F{1,i}
+    % creates cell arrays where the elements are the cols of pics
+    F{1,i+1} = num2cell(F{1,i+1},1);
+    f2{1,i} = num2cell(f2{1,i},1);
+    f3{1,i} = num2cell(f3{1,i},1);
+    f4{1,i} = num2cell(f4{1,i},1);
+    
+    % upsample
+    F{1,i+1} = cellfun(@(x) upsample(x,2), F{1,i+1},'UniformOutput', false);
+    f2{1,i} = cellfun(@(x) upsample(x,2), f2{1,i},'UniformOutput', false);
+    f3{1,i} = cellfun(@(x) upsample(x,2), f3{1,i},'UniformOutput', false);
+    f4{1,i} = cellfun(@(x) upsample(x,2), f4{1,i},'UniformOutput', false);
+      
+    % filter them
+    F{1,i+1} = cellfun(@(x) real(ifft(fft(x).*fft(g0,sx(i,1)))),F{1,i+1}, 'UniformOutput', false);
+    f2{1,i} = cellfun(@(x) real(ifft(fft(x).*fft(g1,sx(i,1)))),f2{1,i}, 'UniformOutput', false);
+    f3{1,i} = cellfun(@(x) real(ifft(fft(x).*fft(g0,sx(i,1)))),f3{1,i}, 'UniformOutput', false);
+    f4{1,i} = cellfun(@(x) real(ifft(fft(x).*fft(g1,sx(i,1)))),f4{1,i}, 'UniformOutput', false);
+    
+    %add two
+    temph01 =cell2mat(F{1,i+1}) + cell2mat(f2{1,i});
+    temph02 = cell2mat(f3{1,i}) + cell2mat(f4{1,i});
+    
+    %transeform col cells into row cells
+    temph01 = num2cell(temph01,2);
+    temph02 = num2cell(temph02,2);
+    
+    %upsample
+    temph01 = cellfun(@(x) upsample(x,2), temph01,'UniformOutput', false);
+    temph02 = cellfun(@(x) upsample(x,2), temph02,'UniformOutput', false);
+     %again process rows. 
+    temph01 = cellfun(@(x) real(ifft(fft(x).*fft(g0',sx(i,2)))),temph01, 'UniformOutput', false);
+    temph02 = cellfun(@(x) real(ifft(fft(x).*fft(g1',sx(i,2)))),temph02, 'UniformOutput', false);
+    F{1,i} = cell2mat(temph01) + cell2mat(temph02);
+    %shift
+    F{1,i} = circshift(F{1,i},[-L+1,-L+1]);
+end
+F = F{1,1};
+
+end
+
+
+##### SOURCE END #####
+--></body></html>
